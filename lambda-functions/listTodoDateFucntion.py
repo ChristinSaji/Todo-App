@@ -1,12 +1,11 @@
 import json
 import boto3
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Attr
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
-    s3 = boto3.client('s3')
     table = dynamodb.Table('Todos')
-    bucket_name = 'serverless-todo-attachments'
 
     def get_response(status_code, body):
         return {
@@ -24,15 +23,17 @@ def lambda_handler(event, context):
 
     if event['requestContext']['http']['method'] == 'GET':
         try:
-            response = table.scan()
+            if 'queryStringParameters' not in event or not event['queryStringParameters']:
+                return get_response(400, 'Date parameter is missing')
+
+            date = event['queryStringParameters'].get('date')
+            if not date:
+                return get_response(400, 'Date parameter is missing')
+
+            response = table.scan(
+                FilterExpression=Attr('date').eq(date)
+            )
             todos = response['Items']
-
-            for todo in todos:
-                if todo.get('attachment'):
-                    attachment_key = todo['attachment']
-                    signed_url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': attachment_key}, ExpiresIn=3600)
-                    todo['attachment'] = signed_url
-
             return get_response(200, todos)
         except ClientError as e:
             return get_response(400, f'Error fetching to-dos: {e.response["Error"]["Message"]}')

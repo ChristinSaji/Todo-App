@@ -6,6 +6,7 @@ function EditTodo() {
   const { id } = useParams();
   const [task, setTask] = useState("");
   const [attachment, setAttachment] = useState(null);
+  const [date, setDate] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,6 +16,7 @@ function EditTodo() {
         const todo = response.data.find((t) => t.id === id);
         if (todo) {
           setTask(todo.task);
+          setDate(todo.date);
         }
       })
       .catch((error) => {
@@ -49,6 +51,7 @@ function EditTodo() {
         const data = {
           id: id,
           task: task,
+          date: date,
           attachment: {
             filename: attachment.name,
             content: base64Content,
@@ -57,7 +60,7 @@ function EditTodo() {
         processAndSendData(data);
       };
     } else {
-      const data = { id: id, task: task };
+      const data = { id: id, task: task, date: date };
       processAndSendData(data);
     }
   };
@@ -76,6 +79,19 @@ function EditTodo() {
             className="w-full px-3 py-2 border border-gray-900 rounded"
             value={task}
             onChange={(e) => setTask(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-bold" htmlFor="date">
+            Date
+          </label>
+          <input
+            type="date"
+            id="date"
+            className="w-full px-3 py-2 border border-gray-900 rounded"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             required
           />
         </div>
