@@ -8,7 +8,7 @@ function Home() {
 
   useEffect(() => {
     axios
-      .get(import.meta.env.VITE_LAMBDA_URL)
+      .get(import.meta.env.VITE_LAMBDA_URL_GET)
       .then((response) => {
         if (Array.isArray(response.data)) {
           setTodos(response.data);

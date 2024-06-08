@@ -12,7 +12,7 @@ function AddTodo() {
 
     const processAndSendData = (data) => {
       axios
-        .post(import.meta.env.VITE_LAMBDA_URL, JSON.stringify(data), {
+        .post(import.meta.env.VITE_LAMBDA_URL_ADD, JSON.stringify(data), {
           headers: {
             "Content-Type": "application/json",
           },

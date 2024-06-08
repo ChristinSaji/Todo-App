@@ -16,7 +16,7 @@ def lambda_handler(event, context):
             'statusCode': status_code,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
             'body': json.dumps(body)
@@ -27,30 +27,11 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
+            'body': json.dumps('CORS preflight response')
         }
-
-    if event['requestContext']['http']['method'] == 'GET':
-        try:
-            response = table.scan()
-            todos = response['Items']
-
-            for todo in todos:
-                if todo.get('attachment'):
-                    attachment_key = todo['attachment']
-                    signed_url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': attachment_key}, ExpiresIn=3600)
-                    todo['attachment'] = signed_url
-
-            print("Todos fetched:", todos)
-            return get_response(200, todos)
-        except ClientError as e:
-            print("ClientError:", e)
-            return get_response(400, f'Error fetching to-dos: {e.response["Error"]["Message"]}')
-        except Exception as e:
-            print("Exception:", e)
-            return get_response(500, f'Internal server error: {str(e)}')
 
     if event['requestContext']['http']['method'] == 'POST':
         try:
