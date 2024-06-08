@@ -1,24 +1,49 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function AddTodo() {
   const [task, setTask] = useState("");
   const [attachment, setAttachment] = useState(null);
+  const navigate = useNavigate();
 
   const handleAddTodo = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("task", task);
-    formData.append("attachment", attachment);
 
-    axios
-      .post("/api/add-todo", formData)
-      .then((response) => {
-        console.log("To-Do added:", response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error adding the to-do!", error);
-      });
+    const processAndSendData = (data) => {
+      axios
+        .post(import.meta.env.VITE_LAMBDA_URL, JSON.stringify(data), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          console.log("To-Do added:", response.data);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("There was an error adding the to-do!", error);
+        });
+    };
+
+    if (attachment) {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(attachment);
+      fileReader.onload = () => {
+        const base64Content = fileReader.result.split(",")[1];
+        const data = {
+          task: task,
+          attachment: {
+            filename: attachment.name,
+            content: base64Content,
+          },
+        };
+        processAndSendData(data);
+      };
+    } else {
+      const data = { task: task };
+      processAndSendData(data);
+    }
   };
 
   return (
