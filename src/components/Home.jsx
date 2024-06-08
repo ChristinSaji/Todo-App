@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Home() {
   const [todos, setTodos] = useState([]);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -22,6 +23,10 @@ function Home() {
       });
   }, []);
 
+  const handleEdit = (id) => {
+    navigate(`/edit-todo/${id}`);
+  };
+
   if (error) {
     return <div className="text-white">Error: {error}</div>;
   }
@@ -32,13 +37,30 @@ function Home() {
       {todos.length === 0 ? (
         <p className="text-white">No to-dos available</p>
       ) : (
-        <ul className="text-white list-disc pl-5">
+        <ul className="text-white font-medium list-disc pl-5 space-y-4">
           {todos.map((todo) => (
-            <li key={todo.id} className="mb-2">
-              {todo.task}
-              {todo.attachment && (
-                <img src={todo.attachment} alt="attachment" className="mt-2" />
-              )}
+            <li
+              key={todo.id}
+              className="border border-white p-4 rounded shadow-md"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+                <div className="flex-1">
+                  <span>{todo.task}</span>
+                  {todo.attachment && (
+                    <img
+                      src={todo.attachment}
+                      alt="attachment"
+                      className="mt-2"
+                    />
+                  )}
+                </div>
+                <button
+                  onClick={() => handleEdit(todo.id)}
+                  className="mt-2 sm:mt-0 sm:ml-4 px-2 py-1 bg-green-700 text-white rounded"
+                >
+                  Edit
+                </button>
+              </div>
             </li>
           ))}
         </ul>

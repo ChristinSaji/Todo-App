@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
 import AddTodo from "./components/AddTodo";
+import EditTodo from "./components/EditTodo";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/add-todo" element={<AddTodo />} />
+            <Route path="/edit-todo/:id" element={<EditTodo />} />
           </Routes>
         </main>
       </div>
